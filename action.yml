@@ -1,0 +1,30 @@
+name: "Deploy Firebase Functions with Workload Identity Federation"
+description: "Deploy Firebase Functions with authentication using Workload Identity Federation"
+author: "mwpryer"
+inputs:
+  project-id:
+    description: "Firebase project ID"
+    required: true
+  functions-dir:
+    description: "Directory containing Firebase functions (relative to repository root)"
+    required: false
+    default: "functions"
+  force:
+    description: "Whether to use --force flag for deployment. This could remove existing functions"
+    required: false
+    default: "false"
+  debug:
+    description: "Whether to use --debug flag for deployment"
+    required: false
+    default: "false"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.project-id }}
+    - ${{ inputs.functions-dir }}
+    - ${{ inputs.force }}
+    - ${{ inputs.debug }}
+branding:
+  icon: "upload-cloud"
+  color: "orange"
