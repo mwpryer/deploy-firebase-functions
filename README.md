@@ -75,13 +75,14 @@ gcloud iam workload-identity-pools create "github" \
 ### 3. Get the Workload Identity Pool ID
 
 ```sh
-gcloud iam workload-identity-pools describe "github" \
+WORKLOAD_IDENTITY_POOL_ID=$(gcloud iam workload-identity-pools describe "github" \
   --project="${PROJECT_ID}" \
   --location="global" \
   --format="value(name)"
+)
 ```
 
-Save the output from this command; you'll need it for step 5. It will look something like:
+We'll use the output from this command in step 5. It will look something like:
 
 ```
 projects/123456789/locations/global/workloadIdentityPools/github
@@ -107,7 +108,7 @@ gcloud iam workload-identity-pools providers create-oidc "repo" \
 
 ### 5. Allow Workload Identity Pool Access to Service Account
 
-Replace `${WORKLOAD_IDENTITY_POOL_ID}` with the value from step 3.
+`${WORKLOAD_IDENTITY_POOL_ID}` will be the value from step 3.
 
 If you skipped step 1 and are using an existing service account, replace `deploy-firebase-functions@${PROJECT_ID}.iam.gserviceaccount.com` with the email of your service account.
 
@@ -141,12 +142,21 @@ Below are the inputs available for configuring the Firebase Functions deployment
 
 ### Available Inputs
 
-| Input | Description | Required | Default | Notes |
-|-------|-------------|----------|---------|-------|
-| `project-id` | Firebase project ID | ✅ | - | Must match the project configured in your Workload Identity Federation |
-| `functions-dir` | Directory containing Firebase functions | ❌ | `functions` | Relative path from repository root. Must contain `package.json` and Firebase functions |
-| `force` | Whether to use `--force` flag for deployment | ❌ | `false` | Use with caution; this will delete functions not in current deployment |
-| `debug` | Whether to use `--debug` flag for deployment | ❌ | `false` | Provides verbose logging for troubleshooting deployment issues |
+- **`project-id`** *(required)*
+
+  Firebase project ID. Must match the project configured in your Workload Identity Federation.
+
+- **`functions-dir`** *(default: `functions`)*
+
+  Directory containing Firebase functions. Relative path from repository root. Directory must contain `package.json` and Firebase functions.
+
+- **`force`** *(default: `false`)*
+
+  Whether to use `--force` flag for deployment. Use with caution; this will delete functions not in current deployment.
+
+- **`debug`** *(default: `false`)*
+
+  Whether to use `--debug` flag for deployment. Provides verbose logging for troubleshooting deployment issues.
 
 ## Usage
 
@@ -216,3 +226,9 @@ jobs:
           force: "true"
           debug: "true"
 ```
+
+## Troubleshooting
+
+### Cloud Billing API Error
+
+If you see a `Cloud Billing API has not been used in project` error in your GitHub Actions logs, enable the Cloud Billing API in the [Google Cloud Console](https://console.cloud.google.com/apis) and wait a few minutes before retrying the deployment.
